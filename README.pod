@@ -2,226 +2,54 @@
 
 =head1 NAME
 
-Games::EveOnline::API - A simple Perl wrapper around the EveOnline XML API.
+MooX::ChainedAttributes - Make your attributes chainable.
 
 =head1 SYNOPSIS
 
-  use Games::EveOnline::API;
-  my $eapi = Games::EveOnline::API->new();
-  
-  my $skill_groups = $eapi->skill_tree();
-  my $ref_types = $eapi->ref_types();
-  my $systems = $eapi->sovereignty();
-  
-  # The rest of the methods require authentication.
-  my $eapi = Games::EveOnline::API->new( user_id=>'..', api_key=>'..' );
-  
-  my $characters = $eapi->characters();
-  my $sheet = $eapi->character_sheet( character_id => $character_id );
-  my $in_training = $eapi->skill_in_training( character_id => $character_id );
+    package Foo;
+    use Moo;
+    use MooX::ChainedAttributes;
+    
+    has name => (
+        is      => 'rw',
+        chained => 1,
+    );
+    
+    sub who {
+        my ($self) = @_;
+        print "My name is " . $self->name() . "!\n";
+    }
+    
+    my $foo = Foo->new();
+    $foo->name('Fred')->who(); # My name is Fred!
 
 =head1 DESCRIPTION
 
-This module provides a Perl wrapper around the Eve-Online API, version 2.
-The need for the wrapper arrises for two reasons.  First, the XML that
-is provided by the API is overly complex, at least for my taste.  So, other
-than just returning you a perl data representation of the XML, it also
-simplifies the results.
+Chaining is a questionable feature to support.  It leads to all kinds
+of crazyness, all of which just cause developers pain.  It works with
+some things like C<jQuery>, but typically it is to be avoided.
 
-Only a couple of the methods provided by this module can be used straight
-away.  The rest require that you get a user_id (keyID) and api_key (vCode).
+That being said, this module exists for your chaining enjoyment.  It
+was developed in order to support the porting of
+L<MooseX::Attribute::Chained> using classes to L<Moo>.
 
-=head1 A NOTE ON CACHING
+In L<Moose> you would write:
 
-Most of these methods return a 'cached_until' value.  I've no clue if this
-is CCP telling you how long you should cache the information before you
-should request it again, or if this is the point at which CCP will refresh
-their cache of this information.
+    package Bar;
+    use Moose;
+    use MooseX::Attribute::Chained;
+    has baz => ( is=>'rw', traits=>['Chained'] );
 
-Either way, it is good etiquet to follow the cacheing guidelines of a
-provider.  If you over-use the API I'm sure you'll eventually get blocked.
+To port the above to L<Moo> just change it to:
 
-=head1 ARGUMENTS
-
-=head2 user_id
-
-An Eve Online API user ID (also known as a keyID).
-
-=head2 api_key
-
-The key, as provided Eve Online, to access the API (also known
-as a vCode).
-
-=head2 character_id
-
-Set the default C<character_id>.  Any methods that require
-a characte ID, and are not given one, will use this one.
-
-=head2 api_url
-
-The URL that will be used to access the Eve Online API.
-Defaults to L<https://api.eveonline.com>.  Normally you
-won't want to change this.
-
-=head1 ANONYMOUS METHODS
-
-These methods may be called anonymously, without authentication.
-
-=head2 skill_tree
-
-  my $skill_groups = $eapi->skill_tree();
-
-Returns a complex data structure containing the entire skill tree.
-The data structure is:
-
-  {
-    cached_until => $date_time,
-    $group_id => {
-      name => $group_name,
-      skills => {
-        $skill_id => {
-          name => $skill_name,
-          description => $skill_description,
-          rank => $skill_rank,
-          primary_attribute => $skill_primary_attribute,
-          secondary_attribute => $skill_secondary_attribute,
-          bonuses => {
-            $bonus_name => $bonus_value,
-          },
-          required_skills => {
-            $skill_id => $skill_level,
-          },
-        }
-      }
-    }
-  }
-
-=head2 ref_types
-
-  my $ref_types = $eapi->ref_types();
-
-Returns a simple hash structure containing definitions of the
-various financial transaction types.  This is useful when pulling
-wallet information. The key of the hash is the ref type's ID, and
-the value of the title of the ref type.
-
-=head2 sovereignty
-
-  my $systems = $eapi->sovereignty();
-
-Returns a hashref where each key is the system ID, and the
-value is a hashref with the keys:
-
-  name
-  faction_id
-  sovereignty_level
-  constellation_sovereignty
-  alliance_id
-
-=head1 RESTRICTED METHODS
-
-These methods require authentication to use, so you must have set
-the L</user_id> and L</api_key> arguments to use them.
-
-=head2 characters
-
-  my $characters = $eapi->characters();
-
-Returns a hashref where key is the character ID and the
-value is a hashref with a couple bits about the character.
-Here's a sample:
-
-  {
-    '1972081734' => {
-      'corporation_name' => 'Bellator Apparatus',
-      'corporation_id'   => '1044143901',
-      'name'             => 'Ardent Dawn'
-    }
-  }
-
-=head2 character_sheet
-
-  my $sheet = $eapi->character_sheet( character_id => $character_id );
-
-For the given character ID a hashref is returned with
-the all the information about the character.  Here's
-a sample:
-
-  {
-    'name'             => 'Ardent Dawn',
-    'balance'          => '99010910.10',
-    'race'             => 'Amarr',
-    'blood_line'       => 'Amarr',
-    'corporation_name' => 'Bellator Apparatus',
-    'corporation_id'   => '1044143901',
-  
-    'skills' => {
-      '3455' => {
-        'level'        => '2',
-        'skill_points' => '1415'
-      },
-      # Removed the rest of the skills for readability.
-    },
-  
-    'attribute_enhancers' => {
-      'memory' => {
-        'value' => '3',
-        'name'  => 'Memory Augmentation - Basic'
-      },
-      # Removed the rest of the enhancers for readability.
-    },
-  
-    'attributes' => {
-      'memory'       => '7',
-      'intelligence' => '7',
-      'perception'   => '4',
-      'charisma'     => '4',
-      'willpower'    => '17'
-    }
-  }
-
-=head2 skill_in_training
-
-  my $in_training = $eapi->skill_in_training( character_id => $character_id );
-
-Returns a hashref with the following structure:
-
-  {
-    'current_tq_time' => {
-      'content' => '2008-05-10 04:06:35',
-      'offset'  => '0'
-    },
-    'end_time'   => '2008-05-10 19:23:18',
-    'start_sp'   => '139147',
-    'to_level'   => '5',
-    'start_time' => '2008-05-07 16:15:05',
-    'skill_id'   => '3436',
-    'end_sp'     => '256000'
-  }
-
-=head1 SEE ALSO
-
-=over
-
-=item *
-
-L<WebService::EveOnline>
-
-=back
+    package Bar;
+    use Moo;
+    use MooX::ChainedAttributes;
+    has baz => ( is=>'rw', chained=>1 );
 
 =head1 AUTHOR
 
 Aran Clary Deltac <bluefeet@gmail.com>
-
-=head1 CONTRIBUTORS
-
-=over
-
-=item *
-
-Andrey Chips Kuzmin <chipsoid@cpan.org>
-
-=back
 
 =head1 LICENSE
 
