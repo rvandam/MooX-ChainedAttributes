@@ -15,6 +15,12 @@ MooX::ChainedAttributes - Make your attributes chainable.
         chained => 1,
     );
     
+    has age => (
+        is => 'rw',
+    );
+    
+    chain('age');
+    
     sub who {
         my ($self) = @_;
         print "My name is " . $self->name() . "!\n";
