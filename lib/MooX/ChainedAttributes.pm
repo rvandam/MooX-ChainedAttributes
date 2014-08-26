@@ -89,11 +89,15 @@ sub import {
         has => sub{
             my ($orig, $name, %attributes) = @_;
 
-            my $methods = delete $attributes{chained};
+            my $chained = delete $attributes{chained};
             $orig->( $name, %attributes );
-            return if !$methods;
+            return if !$chained;
 
-            my $writer = $attributes{writer} || $name;
+            my $is = $attributes->{is};
+            my $writer = $attributes{writer};
+            $writer ||= "_set_$name" if $is eq 'rwp';
+            $writer ||= $name if $is eq 'rw';
+            return if !$writer;
 
             $chain->( $writer );
 
