@@ -57,6 +57,7 @@ To port the above to L<Moo> just change it to:
 =cut
 
 use Class::Method::Modifiers qw( install_modifier );
+use Carp qw( croak );
 
 sub import {
     my $target = caller();
@@ -93,11 +94,11 @@ sub import {
             $orig->( $name, %attributes );
             return if !$chained;
 
-            my $is = $attributes->{is};
+            my $is = $attributes{is};
             my $writer = $attributes{writer};
             $writer ||= "_set_$name" if $is eq 'rwp';
             $writer ||= $name if $is eq 'rw';
-            return if !$writer;
+            croak 'Cannot set chained on an attribute without a writer' if !$writer;
 
             $chain->( $writer );
 
