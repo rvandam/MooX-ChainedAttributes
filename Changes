@@ -1,6 +1,7 @@
 Revision history for Perl extension MooX::ChainedAttributes.
 
 {{$NEXT}}
+ - Don't instantiate class before modifying it in test. (haarg)
 
 0.03      2014-08-26
  - Support Moo's 'is' attribute correctly.

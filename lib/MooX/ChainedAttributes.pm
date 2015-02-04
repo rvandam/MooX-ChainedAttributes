@@ -116,6 +116,16 @@ __END__
 
 Aran Clary Deltac <bluefeet@gmail.com>
 
+=head1 CONTRIBUTORS
+
+=over
+
+=item *
+
+Graham Knop <haarg@haarg.org>
+
+=back
+
 =head1 LICENSE
 
 This library is free software; you can redistribute it and/or modify
