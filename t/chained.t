@@ -38,16 +38,6 @@ use Test::Fatal;
     );
 }
 
-my $f = Foo->new();
-
-is( $f->foo1(32), $f, 'rw chained' );
-is( $f->foo1(), 32, 'chained accessor reader returned value' );
-
-is( $f->foo2(56), 56, 'rw non-chained' );
-is( $f->_set_foo3(19), $f, 'rwp chained' );
-is( $f->set_foo4(98), $f, 'rw chained writer' );
-is( $f->set_foo5(77), $f, 'rwp chained writer' );
-
 is(
     exception{ Foo->can('has')->('foo6', is=>'rw') },
     undef,
@@ -59,5 +49,15 @@ isnt(
     undef,
     'ro failed',
 );
+
+my $f = Foo->new();
+
+is( $f->foo1(32), $f, 'rw chained' );
+is( $f->foo1(), 32, 'chained accessor reader returned value' );
+
+is( $f->foo2(56), 56, 'rw non-chained' );
+is( $f->_set_foo3(19), $f, 'rwp chained' );
+is( $f->set_foo4(98), $f, 'rw chained writer' );
+is( $f->set_foo5(77), $f, 'rwp chained writer' );
 
 done_testing;
