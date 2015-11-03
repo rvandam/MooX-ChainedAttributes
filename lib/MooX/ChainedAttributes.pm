@@ -56,57 +56,32 @@ To port the above to L<Moo> just change it to:
 
 =cut
 
-use Class::Method::Modifiers qw( install_modifier );
+use Moo ();
+use Moo::Role ();
 use Carp qw( croak );
 
+my $role = 'MooX::ChainedAttributes::Role::GenerateAccessor';
+
 sub import {
-    my $target = caller();
+    my $class = shift;
+    my $target = caller;
 
-    my $around = $target->can('around');
-    my $fresh = sub{ install_modifier( $target, 'fresh', @_ ) };
+    if (my $acc = Moo->_accessor_maker_for($target)) {
+        Moo::Role->apply_roles_to_object($acc, $role)
+            unless $acc->does($role);
+    }
+    else {
+        croak "MooX::ChainedAttributes can only be used in Moo classes.";
+    }
 
-    $fresh->(
-        chain => sub{
-            my ($methods) = @_;
-            $methods = [$methods] if !ref $methods;
+    my $has = $target->can('has');
 
-            foreach my $method ($methods) {
-                $around->(
-                    $method => sub{
-                        my $orig = shift;
-                        my $self = shift;
-                        return $self->$orig() if !@_;
-                        $self->$orig( @_ );
-                        return $self;
-                    },
-                );
-            }
-        },
-    );
-
-    my $chain = $target->can('chain');
-
-    $around->(
-        has => sub{
-            my ($orig, $name, %attributes) = @_;
-
-            my $chained = delete $attributes{chained};
-            $orig->( $name, %attributes );
-            return if !$chained;
-
-            my $is = $attributes{is};
-            my $writer = $attributes{writer};
-            $writer ||= "_set_$name" if $is eq 'rwp';
-            $writer ||= $name if $is eq 'rw';
-            croak 'Cannot set chained on an attribute without a writer' if !$writer;
-
-            $chain->( $writer );
-
-            return;
-        },
-    );
-
-    return;
+    no strict 'refs';
+    *{"${target}::chain"} = sub {
+        my $attr = shift;
+        $has->("+$attr", (chained => 1));
+        return;
+    };
 }
 
 1;
