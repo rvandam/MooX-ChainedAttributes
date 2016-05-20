@@ -60,4 +60,20 @@ is( $f->_set_foo3(19), $f, 'rwp chained' );
 is( $f->set_foo4(98), $f, 'rw chained writer' );
 is( $f->set_foo5(77), $f, 'rwp chained writer' );
 
+{
+    package Foo2;
+
+    use Moo;
+    use MooX::ChainedAttributes;
+
+    has foo2 => (
+        is => 'rw',
+    );
+
+    chain 'foo2';
+}
+
+my $f2 = Foo2->new;
+is( $f2->foo2(56), $f2, 'make existing attribute chained' );
+
 done_testing;
