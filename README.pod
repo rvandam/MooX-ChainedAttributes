@@ -31,12 +31,8 @@ MooX::ChainedAttributes - Make your attributes chainable.
 
 =head1 DESCRIPTION
 
-Chaining is a questionable feature to support.  It leads to all kinds
-of crazyness, all of which just cause developers pain.  It works with
-some things like C<jQuery>, but typically it is to be avoided.
-
-That being said, this module exists for your chaining enjoyment.  It
-was developed in order to support the porting of
+This module exists for your method chaining enjoyment.  It
+was originally developed in order to support the porting of
 L<MooseX::Attribute::Chained> using classes to L<Moo>.
 
 In L<Moose> you would write:
