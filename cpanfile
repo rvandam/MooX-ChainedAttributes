@@ -4,4 +4,5 @@ requires 'strictures' => 1.004004;
 
 on test => sub {
     requires 'Test::Simple' => 0.94;
+    requires 'Test::Fatal' => 0.14;
 };
